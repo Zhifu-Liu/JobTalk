@@ -1,17 +1,44 @@
 package com.zhifu.community.entity;
 
-import java.sql.Date;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.elasticsearch.annotations.Document;
+import org.springframework.data.elasticsearch.annotations.Field;
+import org.springframework.data.elasticsearch.annotations.FieldType;
 
+import java.util.Date;
+
+//通过@Document、@Id、@Field(type =)等注释，使得实体类及属性和ES的索引及字段建立联系
+@Document(indexName = "discusspost", shards = 6, replicas = 3)
 public class DiscussPost {
 
+    @Id
     private int id;
+
+    @Field(type = FieldType.Integer)
     private int userId;
+
+    // analyzer是存储时解析器,要尽可能多的拆出关联词汇用以存储和搜索，所以用ik_max_word
+    // searchAnalyzer是搜索时的解析器，打入的关键字没必要尽全力拆分，需要理解搜索者意图，所以用ik_smart
+    @Field(type = FieldType.Text, analyzer = "ik_max_word",searchAnalyzer = "ik_smart")
     private String title;
+
+    @Field(type = FieldType.Text, analyzer = "ik_max_word",searchAnalyzer = "ik_smart")
     private String content;
+
+    @Field(type = FieldType.Integer)
     private int type;
+
+    @Field(type = FieldType.Integer)
     private int status;
+
+    @Field(type = FieldType.Date)
     private Date createTime;
+
+    @Field(type = FieldType.Integer)
     private int commentCount;
+
+    // 分数 最后进行推荐
+    @Field(type = FieldType.Double)
     private double score;
 
     public int getId() {

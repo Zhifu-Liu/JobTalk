@@ -14,6 +14,8 @@ public class Page {
     private int rows;
     //查询路径（用于复用分页链接）
     private String path;
+    //当前页的起始行
+    //private int offset;
 
     public int getCurrent() {
         return current;
@@ -22,6 +24,7 @@ public class Page {
     public void setCurrent(int current) {
         if(current >= 1) {
             this.current = current;
+            //offset = (current - 1) * limit;
         }
     }
 
@@ -32,6 +35,7 @@ public class Page {
     public void setLimit(int limit) {
         if(limit >= 1 && limit <= 100) {
             this.limit = limit;
+            //offset = (current - 1) * limit;
         }
     }
 
@@ -53,13 +57,14 @@ public class Page {
         this.path = path;
     }
 
+
     /**
      * 获取当前页的起始行
      * @return
      */
-    public int getOffSet(){
+    public int getOffset(){
     //current * limit - limit
-        return (current - 1) * limit;
+        return (current-1) * limit ;
     }
 
     /**
