@@ -1,6 +1,8 @@
 package com.zhifu.community.controller;
 
 
+import com.qiniu.util.Auth;
+import com.qiniu.util.StringMap;
 import com.zhifu.community.annotation.LoginRequired;
 import com.zhifu.community.entity.User;
 import com.zhifu.community.service.FollowService;
@@ -16,10 +18,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.CookieValue;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletResponse;
@@ -46,6 +45,18 @@ public class UserController implements CommunityConstant {
     @Value("${server.servlet.context-path}")
     private String contextPath;
 
+    @Value("${qiniu.key.access}")
+    private String accessKey;
+
+    @Value("${qiniu.key.secret}")
+    private String secretKey;
+
+    @Value("${qiniu.bucket.header.name}")
+    private String headerBucketName;
+
+    @Value("${qiniu.bucket.header.url}")
+    private String headerBucketUrl;
+
     @Autowired
     private UserService userService;
 
@@ -58,13 +69,43 @@ public class UserController implements CommunityConstant {
     @Autowired
     private FollowService followService;
 
+    //由于将头像存储位置：服务器本地 -> 七牛云存储,而七牛云上传文件时需要上传token
+    //因此，需要在设置头像的请求方法中，将上传token提前设置好，并放在setting页面的model中
     @LoginRequired
     @RequestMapping(path="/setting",method = RequestMethod.GET)
-    public String getSettingPage(){
+    public String getSettingPage(Model model){
+        //上传文件名称
+        String fileName = CommunityUtil.generateUUID();
+        //设置处理成功后的返回响应信息
+        StringMap policy = new StringMap();
+        policy.put("returnBody", CommunityUtil.getJSONString(0));
+        //生成上传凭证token
+        Auth auth = Auth.create(accessKey, secretKey);
+        String uploadToken = auth.uploadToken(headerBucketName,fileName,3600,policy);
+
+        model.addAttribute("uploadToken", uploadToken);
+        model.addAttribute("fileName", fileName);
+
         return "/site/setting";
     }
 
+    //更新用户头像路径
+    @RequestMapping(path = "/header/url", method = RequestMethod.POST)
+    @ResponseBody
+    public String updateHeaderUrl(String fileName){
+        if(StringUtils.isBlank(fileName)){
+            return CommunityUtil.getJSONString(1,"文件名不能为空！");
+        }
 
+        String url = headerBucketUrl + "/" + fileName;
+        userService.updateHeader(hostHolder.getUser().getId(), url);
+
+        return CommunityUtil.getJSONString(0);
+    }
+
+
+    //原有方法：头像上传到服务器本地，该方法需要废弃掉
+    //更改后方法：七牛云实现上传接口，无需在服务器上作实现
     @LoginRequired
     @RequestMapping(path="/upload",method=RequestMethod.POST)
     public String uploadHeader(MultipartFile headerImage, Model model){
@@ -101,6 +142,8 @@ public class UserController implements CommunityConstant {
 
     }
 
+    //原有方法：头像从服务器本地获取，该方法需要废弃掉
+    //更改后方法：七牛云实现下载接口，无需在服务器上作实现
     @RequestMapping(path="/header/{fileName}",method=RequestMethod.GET)
     public void getHeader(@PathVariable("fileName") String fileName, HttpServletResponse response){
         //服务器存放的路径

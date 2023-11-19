@@ -5,7 +5,11 @@ import com.zhifu.community.dao.UserMapper;
 import com.zhifu.community.entity.DiscussPost;
 import com.zhifu.community.entity.User;
 import com.zhifu.community.util.CommunityUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Async;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.TransactionDefinition;
 import org.springframework.transaction.TransactionStatus;
@@ -19,7 +23,9 @@ import java.util.Date;
 
 @Service
 public class AlphaService {
-    //该bean由Spring自动创建并自动装配到容器中的
+
+    private static final Logger logger = LoggerFactory.getLogger(AlphaService.class);
+  //该bean由Spring自动创建并自动装配到容器中的
     //利用该bean执行sql，可以保证事务性
     @Autowired(required = false)
     private TransactionTemplate transactionTemplate;
@@ -91,5 +97,18 @@ public class AlphaService {
             }
         });
     }
+
+    //让该方法在多线程环境下，被异步的调用
+    @Async
+    public void execute1(){
+        logger.debug("execute1!");
+    }
+
+    //多线程环境下，执行定时任务
+    //@Scheduled(initialDelay = 10000, fixedRate = 1000)
+    public void execute2(){
+        logger.debug("execute2!");
+    }
+
 
 }

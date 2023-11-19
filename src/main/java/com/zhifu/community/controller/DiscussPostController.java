@@ -10,7 +10,9 @@ import com.zhifu.community.service.UserService;
 import com.zhifu.community.util.CommunityConstant;
 import com.zhifu.community.util.CommunityUtil;
 import com.zhifu.community.util.HostHolder;
+import com.zhifu.community.util.RedisKeyUtil;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -42,6 +44,9 @@ public class DiscussPostController implements CommunityConstant {
     @Autowired
     private EventProducer eventProducer;
 
+    @Autowired
+    private RedisTemplate redisTemplate;
+
     @RequestMapping(path="/add", method = RequestMethod.POST)
     @ResponseBody
     public String addDiscussPost( String title, String content){
@@ -67,6 +72,10 @@ public class DiscussPostController implements CommunityConstant {
                 .setEntityType(ENTITY_TYPE_POST)
                 .setEntityId(post.getId());
         eventProducer.fireEvent(event);
+
+        //计算帖子的分数
+        String redisKey = RedisKeyUtil.getPostScoreKey();
+        redisTemplate.opsForSet().add(redisKey,post.getId());
 
         //上述步骤中，如果出现报错情况，将来统一处理，在本文件中先暂不考虑
         return CommunityUtil.getJSONString(0, "发布成功！");
@@ -206,6 +215,10 @@ public class DiscussPostController implements CommunityConstant {
                 .setEntityType(ENTITY_TYPE_POST)
                 .setEntityId(id);
         eventProducer.fireEvent(event);
+
+        //计算帖子的分数
+        String redisKey = RedisKeyUtil.getPostScoreKey();
+        redisTemplate.opsForSet().add(redisKey,id);
 
         return CommunityUtil.getJSONString(0);
     }

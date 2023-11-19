@@ -2,6 +2,10 @@ package com.zhifu.community.service;
 
 import com.zhifu.community.util.RedisKeyUtil;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataAccessException;
+import org.springframework.data.redis.connection.RedisConnection;
+import org.springframework.data.redis.connection.RedisStringCommands;
+import org.springframework.data.redis.core.RedisCallback;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
@@ -49,5 +53,39 @@ public class DataService {
         return redisTemplate.opsForHyperLogLog().size(redisKey);
     }
 
+    //将指定用户计入DAU：日活用户
+    public void recordDAU(int userId){
+        String redisKey = RedisKeyUtil.getDAUKey(df.format(new Date()));
+        redisTemplate.opsForValue().setBit(redisKey,userId,true);
+    }
+
+    //统计指定日期范围内的DAU
+    public long calculateDAU(Date start, Date end){
+        if(start == null || end == null){
+            throw new IllegalArgumentException("参数不能为空！");
+        }
+        //整理该日期范围内的key
+        List<byte[]> keyList = new ArrayList<>();
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(start);
+        while(!calendar.getTime().after(end)){
+            String key = RedisKeyUtil.getDAUKey(df.format(calendar.getTime()));
+            keyList.add(key.getBytes());
+            calendar.add(Calendar.DATE, 1);
+        }
+
+        //进行OR运算，必须使用redis底层的connection来实现
+        //使用redis模板的execute（），并传入匿名的RedisCallBack接口的实现类，并重写其doInRedis()方法
+        return (long) redisTemplate.execute(new RedisCallback() {
+            @Override
+            public Object doInRedis(RedisConnection connection) throws DataAccessException {
+                String redisKey = RedisKeyUtil.getDAUKey(df.format(start), df.format(end));
+                connection.bitOp(RedisStringCommands.BitOperation.OR,
+                        redisKey.getBytes(), keyList.toArray(new byte[0][0]));
+                return connection.bitCount(redisKey.getBytes());
+            }
+        });
+
+    }
     
 }

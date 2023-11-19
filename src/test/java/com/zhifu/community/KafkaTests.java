@@ -27,17 +27,17 @@ public class KafkaTests {
     public void testKafka(){
 
         HashMap<String,Object> map = new HashMap<>();
-        map.put("name","liuzhifu");
-        map.put("age",24);
+        map.put("name","GG-Bond");
+        map.put("age",18);
         HashMap<String,Object> innerMap = new HashMap<>();
 
         HashMap<String,Object> innerInnerMap = new HashMap<>();
-        innerInnerMap.put("pingpang", 0);
-        innerInnerMap.put("basketball", "excellent");
+        innerInnerMap.put("pingpang", 0.035);
+        innerInnerMap.put("basketball", "ok");
 
         innerMap.put("sports",innerInnerMap);
-        innerMap.put("swim",1);
-        innerMap.put("sing","good");
+        innerMap.put("swim",1.00001);
+        innerMap.put("sing","average");
 
         map.put("skill",innerMap);
 
