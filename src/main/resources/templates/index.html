@@ -9,7 +9,7 @@
 	<meta name="_csrf" th:content="${_csrf.token}">
 	<meta name="_csrf_header" th:content="${_csrf.headerName}">-->
 
-	<link rel="icon" href="http://localhost:8088/community/user/header/icon.pnggit"/>
+	<link rel="icon" href="http://localhost:8088/community/user/header/icon-empty.png"/>
 	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.3.1/dist/css/bootstrap.min.css" crossorigin="anonymous">
 	<link rel="stylesheet" th:href="@{/css/global.css}" />
 	<!--
@@ -34,12 +34,12 @@
 但是如果是针对某个文件或者文件夹下的文件的特殊文件或者静态资源(如:针对某个页面或者某个文件加下的一组页面的js或者css文件),
 则建议使用相对路径,这样在整个文件夹移动时,不会出现请求不到相关文件的情况下 -->
 
-	<title>牛客网-首页</title>
+	<title>职道网-首页</title>
 </head>
 <body>	
 	<div class="nk-container">
 		<!-- 头部 -->
-		<header class="bg-dark sticky-top" th:fragment="header">
+		<header class="bg-info sticky-top" th:fragment="header">
 			<div class="container">
 				<!-- 导航 -->
 				<nav class="navbar navbar-expand-lg navbar-dark">
@@ -52,7 +52,7 @@
 					<div class="collapse navbar-collapse" id="navbarSupportedContent">
 						<ul class="navbar-nav mr-auto">
 							<li class="nav-item ml-3 btn-group-vertical">
-								<a class="nav-link" th:href="@{/index}">首页</a>
+								<a class="nav-link text-light" th:href="@{/index}">首页</a>
 							</li>
 							<li class="nav-item ml-3 btn-group-vertical" th:if="${loginUser!=null}">
 								<a class="nav-link position-relative" th:href="@{/letter/list}">消息
@@ -60,10 +60,10 @@
 								</a>
 							</li>
 							<li class="nav-item ml-3 btn-group-vertical" th:if="${loginUser==null}">
-								<a class="nav-link" th:href="@{/register}">注册</a>
+								<a class="nav-link text-light" th:href="@{/register}">注册</a>
 							</li>
 							<li class="nav-item ml-3 btn-group-vertical" th:if="${loginUser==null}">
-								<a class="nav-link" th:href="@{/login}">登录</a>
+								<a class="nav-link text-light" th:href="@{/login}">登录</a>
 							</li>
 							<li class="nav-item ml-3 btn-group-vertical dropdown" th:if="${loginUser!=null}">
 								<a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
@@ -198,12 +198,12 @@
 		</div>
 
 		<!-- 尾部 -->
-		<footer class="bg-dark">
+		<footer class="bg-secondary" th:fragment="footer">
 			<div class="container">
 				<div class="row">
 					<!-- 二维码 -->
 					<div class="col-4 qrcode">
-						<img src="https://uploadfiles.nowcoder.com/app/app_download.png" class="img-thumbnail" style="width:136px;" />
+						<img src="http://localhost:8088/community/user/header/QRcode.jpg" class="img-thumbnail" style="width:136px;" />
 					</div>
 					<!-- 公司信息 -->
 					<div class="col-8 detail-info">
@@ -238,18 +238,13 @@
 							<div class="col">
 								<ul class="nav btn-group-vertical company-info">
 									<li class="nav-item text-white-50">
-										公司地址：北京市朝阳区大屯路东金泉时代3-2708北京牛客科技有限公司
+										公司地址：北京市海淀区西土城路10号北京邮电大学
 									</li>
 									<li class="nav-item text-white-50">
-										联系方式：010-60728802(电话)&nbsp;&nbsp;&nbsp;&nbsp;admin@nowcoder.com
+										联系方式：15896875056(电话)&nbsp;&nbsp;&nbsp;&nbsp;zfliu5056@bupt.edu.cn
 									</li>
 									<li class="nav-item text-white-50">
-										牛客科技©2018 All rights reserved
-									</li>
-									<li class="nav-item text-white-50">
-										京ICP备14055008号-4 &nbsp;&nbsp;&nbsp;&nbsp;
-										<img src="http://static.nowcoder.com/company/images/res/ghs.png" style="width:18px;" />
-										京公网安备 11010502036488号
+										职道科技©2023 All rights reserved
 									</li>
 								</ul>
 							</div>
